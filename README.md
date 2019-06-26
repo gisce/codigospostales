@@ -63,4 +63,4 @@ Debería quedar un fichero similar a
 
 ## Mezcla de ficheros
 
-Hay un pequeño script en Python (debemos tener instalado [pandas](https://pandas.pydata.org/)) que nos creará el fichero resultado
+Hay un script en Python: [merge.py](./merge.py) (debemos tener instalado [pandas](https://pandas.pydata.org/)) que nos creará el fichero resultado
