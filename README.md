@@ -17,7 +17,7 @@ $ iconv TRAMOS-NAL.F181231 --from=iso-8859-1 --to=utf-8 > tramos.txt
 ```
 - Cogemos los campos: código INE, Código Postal, Código unidad poblacional (resumido), Nombre del población
 ```
-$ cat tramos.txt | cut -c 1-5,43-47,79-82,111-135 --output-delimiter=';' | sort | uniq | grep -v 'DISEMINADO' > cps.txt
+$ cat tramos.txt | cut -c 1-5,43-47,79-82,111-136 --output-delimiter=';' | sort | uniq | grep -v 'DISEMINADO' > cps.txt
 ```
 
 Nos debería quedar un fichero similar a:
