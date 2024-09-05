@@ -2,9 +2,8 @@
 
 ## Fuente de datos
 
-- [Callejero del Censo Electoral](http://www.ine.es/ss/Satellite?L=es_ES&c=Page&cid=1254735624326&p=1254735624326&pagename=ProductosYServicios%2FPYSLayout) (INE)
-- [Nomenclator](
-http://www.ine.es/nomen2/ficheros.do) (INE)
+- [Callejero del Censo Electoral](https://www.ine.es/uc/1dIJtjmEi1) (INE)
+- [Nomenclator](https://www.ine.es/uc/d3JnUsAO) (INE)
 
 ## Preparación ficheros
 
