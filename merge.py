@@ -1,36 +1,63 @@
 import pandas as pd
+import argparse
 
-# Import zipcodes
-zipcodes = pd.read_csv(
-    'cps.txt',
-    sep=';',
-    header=None,
-    names=['ine', 'zipcode', 'pob', 'city'],
-    dtype={'ine': str, 'zipcode': str, 'pob': str, 'city': str}
-)
-zipcodes['city'] = zipcodes['city'].apply(lambda x: str(x).strip())
 
-# Import cities
-cities = pd.read_csv(
-    'pobs.txt',
-    sep=';',
-    header=None,
-    names=['ine', 'pob', 'city'],
-    dtype={'ine': str, 'pob': str, 'city': str}
-)
-cities['city'] = cities['city'].apply(lambda x: x.strip())
+def main(tram_path, nomdef_path, output_path):
 
-# Merge data frames
-merged = zipcodes.merge(
-    cities,
-    how='left',
-    on=['ine', 'pob'],
-    indicator=True
-)
+    with open(tram_path, 'rb') as f:
+        data = f.read().decode('iso-8859-1')
 
-# Fix left only cities
-merged['city'] = merged.apply(lambda row: not pd.isna(row['city_y']) and row['city_y'] or row['city_x'], axis='columns')
+    lines = data.split('\r\n')
+    lines = [
+        {
+            'ine': line[0:5],
+            'zipcode': line[42:47],
+            'pob': line[78:82],
+            'city': line[110:135]
+        } for line in lines
+    ]
+    zipcodes = pd.DataFrame(lines)
 
-# Export to CSV
-merged.to_csv('zipcodes.csv', index=None, sep=';', columns=['ine', 'zipcode', 'city'])
+    zipcodes = zipcodes.drop_duplicates()
+    zipcodes = zipcodes[~zipcodes['city'].str.contains('DISEMINADO', na=False)]
+    zipcodes['city'] = zipcodes['city'].apply(lambda x: x.strip())
 
+
+    with open(nomdef_path, 'rb') as f:
+        data = f.read().decode('iso-8859-1')
+
+    lines = data.split('\r\n')
+    lines = [
+        {
+            'ine': line[0:5],
+            'pob': line[5:9],
+            'city': line[11:81]
+        } for line in lines
+    ]
+    cities = pd.DataFrame(lines)
+    cities = cities.drop_duplicates()
+    cities = cities[~cities['city'].str.contains('DISEMINADO', na=False)]
+    cities['city'] = cities['city'].apply(lambda x: x.strip())
+
+    # Merge data frames
+    merged = zipcodes.merge(
+        cities,
+        how='left',
+        on=['ine', 'pob'],
+        indicator=True
+    )
+
+    # Fix left only cities
+    merged['city'] = merged.apply(lambda row: not pd.isna(row['city_y']) and row['city_y'] or row['city_x'], axis='columns')
+
+    # Export to CSV
+    merged.to_csv(output_path, index=None, sep=';', columns=['ine', 'zipcode', 'city'], encoding='utf-8')
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Process zipcodes and cities data.')
+    parser.add_argument('tram_path', type=str, help='Path to the TRAM file')
+    parser.add_argument('nomdef_path', type=str, help='Path to the Nomdef file')
+    parser.add_argument('output_path', type=str, help='Path to save the output CSV file')
+
+    args = parser.parse_args()
+    main(args.tram_path, args.nomdef_path, args.output_path)
