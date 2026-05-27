@@ -37,3 +37,14 @@ Donde:
 - `<tram_path>` es la ruta al fichero `tramos.txt` (preparado a partir del Callejero del Censo Electoral).
 - `<nomdef_path>` es la ruta al fichero `pobs.txt` (preparado a partir del Nomenclator).
 - `<output_path>` es la ruta donde se guardará el fichero `zipcodes.csv` resultante.
+
+
+- Creamos el fichero `zipcode.py`
+
+```bash
+python zipcode.py <zipcodes_path> <output_path>
+```
+
+Donde:
+- `<zipcodes_path>` es la ruta al fichero `zipcodes.csv`
+- `<output_path>` es la ruta donde se guardará el fichero `zipcodes.py` resultante.
