@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 import pandas as pd
 import argparse
 
@@ -7,13 +8,14 @@ def main(tram_path, nomdef_path, output_path):
     with open(tram_path, 'rb') as f:
         data = f.read().decode('iso-8859-1')
 
-    lines = data.split('\r\n')
+    lines = data.splitlines()
     lines = [
         {
             'ine': line[0:5],
             'zipcode': line[42:47],
             'pob': line[78:82],
-            'city': line[110:135]
+            'city': line[110:135],
+            'inep': line[13:17] + line[18:20]
         } for line in lines
     ]
     zipcodes = pd.DataFrame(lines)
@@ -24,19 +26,21 @@ def main(tram_path, nomdef_path, output_path):
 
 
     with open(nomdef_path, 'rb') as f:
-        data = f.read().decode('iso-8859-1')
+        data = f.read().decode('utf-8')
 
-    lines = data.split('\r\n')
+    lines = data.splitlines()
     lines = [
         {
             'ine': line[0:5],
             'pob': line[5:9],
-            'city': line[11:81]
+            'city': line[11:81],
+            'inep': line[5:11],
         } for line in lines
     ]
     cities = pd.DataFrame(lines)
     cities = cities.drop_duplicates()
     cities = cities[~cities['city'].str.contains('DISEMINADO', na=False)]
+    cities = cities[~cities['inep'].str.endswith('99', na=False)]
     cities['city'] = cities['city'].apply(lambda x: x.strip())
 
     # Merge data frames
@@ -48,10 +52,15 @@ def main(tram_path, nomdef_path, output_path):
     )
 
     # Fix left only cities
-    merged['city'] = merged.apply(lambda row: not pd.isna(row['city_y']) and row['city_y'] or row['city_x'], axis='columns')
+    merged['city'] = merged['city_y'].combine_first(merged['city_x'])
+    merged['inep'] = merged['inep_y'].combine_first(merged['inep_x'])
+    merged = merged.drop(columns=['city_x', 'city_y', 'inep_x', 'inep_y', '_merge'])
+
+    merged = merged[~merged['inep'].str.endswith('99', na=False)]
+    merged = merged.drop_duplicates()
 
     # Export to CSV
-    merged.to_csv(output_path, index=None, sep=';', columns=['ine', 'zipcode', 'city'], encoding='utf-8')
+    merged.to_csv(output_path, index=None, sep=';', columns=['ine', 'zipcode', 'inep', 'city'], encoding='utf-8')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process zipcodes and cities data.')
