@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='codigospostales',
-    version='1.0.0',
+    version='0.1.0',
     description='Codigos postales',
     packages=['codigospostales'],
     author='GISCE-TI, S.L.',
